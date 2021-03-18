@@ -23,10 +23,10 @@ library(e1071)
 ---
 
 ## Business Understanding
-text and code here
+Nowadays, blood donation has become common and necessary. However, it is very important to check the quality of the donor's blood to avoid infectious diseases, one of which is hepatitis C. By applying machine learning we could see if it would improve efficiency of the detection potentially infected donors have hepatitis.
 
 ## Data Understanding
-text and code here
+The dataset was used comes from UCI : "https://archive.ics.uci.edu/ml/datasets/HCV+data"
 ```{r}
 url <- "https://raw.githubusercontent.com/HAN-M3DM-Data-Mining/assignments/master/datasets/KNN-hcvdat0.csv"
 rawDF <- read_csv(url)
@@ -36,7 +36,7 @@ str(rawDF)
 
 
 ## Data Preparation
-text and code here
+The first column contains donor IDs and does not contribute information to make prediction so we delete it
 ```{r}
 cleanDF <- rawDF[,-1]
 head(cleanDF)
