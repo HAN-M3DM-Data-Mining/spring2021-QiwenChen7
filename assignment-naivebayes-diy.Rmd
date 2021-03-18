@@ -5,7 +5,7 @@ author:
   - Thanh Hung Lê - Reviewer
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
-   html_notebook:
+    html_notebook:
     toc: true
     toc_depth: 2
 ---
@@ -138,3 +138,5 @@ confusionMatrix(predVec, testDF$type, positive = "hateful", dnn = c("Prediction"
 
 ## Evaluation and Deployment
 
+## References
+“A Benchmark Dataset for Learning to Intervene in Online Hate Speech” 2019, Oct 3. Github. Accessed March 18, 2021. https://github.com/jing-qian/A-Benchmark-Dataset-for-Learning-to-Intervene-in-Online-Hate-Speech.

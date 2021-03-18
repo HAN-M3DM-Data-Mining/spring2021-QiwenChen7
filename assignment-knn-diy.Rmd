@@ -1,8 +1,8 @@
 ---
 title: "Assigment - kNN DIY"
 author:
-  - name author here - Author
-  - name reviewer here - Reviewer
+  - Thanh Hung Lê - Author
+  - Qiwen Chen - Reviewer
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output:
    html_notebook:
@@ -12,30 +12,96 @@ output:
 
 
 ```{r}
+library(readr)
 library(tidyverse)
-library(googlesheets4)
+library(forcats)
 library(class)
 library(caret)
+library(e1071)
 ```
 
 ---
-
-Choose a suitable dataset from [this](https://github.com/HAN-M3DM-Data-Mining/assignments/tree/master/datasets) folder and train  your own kNN model. Follow all the steps from the CRISP-DM model.
-
 
 ## Business Understanding
 text and code here
 
 ## Data Understanding
 text and code here
+```{r}
+url <- "https://raw.githubusercontent.com/HAN-M3DM-Data-Mining/assignments/master/datasets/KNN-hcvdat0.csv"
+rawDF <- read_csv(url)
+View(rawDF)
+str(rawDF)
+```
+
 
 ## Data Preparation
 text and code here
+```{r}
+cleanDF <- rawDF[,-1]
+head(cleanDF)
+
+cntDiag <- table(cleanDF$Category)
+propDiag <- round(prop.table(cntDiag) * 100 , digits = 1)
+
+cntDiag
+propDiag
+
+cleanDF$Category <- fct_collapse(cleanDF$Category, donor = c("0=Blood Donor", "0s=suspect Blood Donor"), 
+                                 hepatitis = c("1=Hepatitis", "2=Fibrosis", "3=Cirrhosis")) #I eliminate the category "suspectdonor" and let "0s=suspect Blood Donor" to be "donor"
+#cleanDF$Category <- cleanDF$Category %>% factor - this is original code, i change it to the following to make hepatitis as positive class.
+cleanDF$Category <-factor(cleanDF$Category) %>% relevel("hepatitis") 
+head(cleanDF, 10)
+levels(cleanDF$Category)
+head(cleanDF, 10)
+summary(cleanDF[c("ALB","BIL","GGT")])
+
+data_norm <- function(x) {((x - min(x)) / (max(x) - min(x)))}
+
+testSet1 <- c(1:5)
+testSet2 <- c(1:5)*10
+cat("testSet1:", testSet1, "\n")
+cat("testSet2:", testSet2, "\n")
+
+#cat("Normalized testSet1:", normalize(testSet1), "\n") - this is orginal code that contain an error, normalize should be replace with the function name "data_norm" in this case
+cat("Normalized testSet1:", data_norm(testSet1), "\n") 
+#cat("Normalized testSet2:", normalize(testSet2)　) - this is orginal code that contain an error, normalize should be replace with the function name "data_norm" in this case
+cat("Normalized testSet2:", data_norm(testSet2)　) 
+
+summary(cleanDF)
+cleanDF <- cleanDF %>% na.omit
+cleanDF <- cleanDF[,-3] #this code is missing to remove unnumeric variables, so the function can run
+
+nCols <- dim(cleanDF)[2]
+cleanDF_n <- sapply(2:nCols,
+                    function(x) {
+                      data_norm(cleanDF[,x])
+                    }) %>% as.data.frame() # I have replaced the function name "normalize" with "data_norm"
+
+summary(cleanDF_n[c("ALB", "BIL", "GGT")])
+
+trainDF_feat <- cleanDF_n[1:450,]
+testDF_feat <- cleanDF_n[451:589,]
+
+#trainDF_labels <- cleanDF[1:450, ] - this original code missing a 1 after the command to exclude the labels from the set
+trainDF_labels <- cleanDF[1:450, 1]
+#testDF_labels <- cleanDF[451:589, ] - this original code missing a 1 after the command to exclude the labels from the set
+testDF_labels <- cleanDF[451:589, 1]
+```
+
 
 ## Modeling
 text and code here
+```{r}
+cleanDF_test_pred <- knn(train = as.matrix(trainDF_feat), test = as.matrix(testDF_feat), 
+                         cl = as.matrix(trainDF_labels), k = 23)
+head(cleanDF_test_pred) #k should be odd number, so I change it from 24 to 23
+
+confusionMatrix(cleanDF_test_pred, testDF_labels[[1]], positive = NULL, dnn = c("Prediction", "True"))
+```
+
 
 ## Evaluation and Deployment
-text and code here
 
-reviewer adds suggestions for improving the model
+As a reviewer for Thanh's work, I have found and corrected a few errors to make it run smoothly. I have given explanations of the correction in the above by making notes on the code itself.
+Apart from the errors, I also ran the model and saw that this model only have an accuracy of 0.59, which quite low to have for a model. As the accuracy of the model is depended on the quality of data set, I can assume that this data set and/or model is not efficient. Therefore, I think the overall performance of this model is not really acceptable as it is not very helpful with using it to classify the blood donors vs. Hepatitis C.
