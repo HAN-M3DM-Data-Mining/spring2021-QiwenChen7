@@ -3,9 +3,9 @@ title: "Assigment - Naive Bayes DIY"
 author:
   - Qiwen Chen - Author
   - Thanh Hung Lê - Reviewer
-date: "`r format(Sys.time(), '%d %B, %Y')`"
+date: 18 March, 2021
 output:
-    html_notebook:
+  html_notebook:
     toc: true
     toc_depth: 2
 ---
